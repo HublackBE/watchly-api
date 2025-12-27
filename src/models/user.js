@@ -1,14 +1,19 @@
 import prisma from '../lib/prisma.js';
 
-export const all = async () => await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
-export const getById = async (id) => await prisma.user.findUnique({ where: { id } });
-export const create = async ({ name, email }) =>
-  await prisma.user.create({ data: { name, email } });
-export const update = async (id, data) =>
-  await prisma.user.update({ where: { id }, data });
-export const remove = async (id) => {
-  await prisma.user.delete({ where: { id } });
-  return true;
-};
+export const all = async (opts = {}) =>
+  await prisma.users.findMany({ orderBy: { created_at: 'desc' }, ...opts });
 
-export default { all, getById, create, update, remove };
+export const getById = async (id, opts = {}) =>
+  await prisma.users.findUnique({ where: { id }, ...opts });
+
+export const findByEmail = async (email) =>
+  await prisma.users.findUnique({ where: { email } });
+
+export const create = async ({ name, email, password, is_admin = false, avatar_path = null }) =>
+  await prisma.users.create({ data: { name, email, password, is_admin, avatar_path } });
+
+export const update = async (id, data) =>
+  await prisma.users.update({ where: { id }, data });
+
+export const remove = async (id) =>
+  await prisma.users.delete({ where: { id } });
