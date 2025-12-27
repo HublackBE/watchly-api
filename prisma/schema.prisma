@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,60 +7,133 @@ datasource db {
   provider = "sqlite"
 }
 
-model User {
+model users {
   id                Int       @id @default(autoincrement())
-  name              String
-  email             String    @unique
+  name              String    @unique(map: "users_name_unique")
+  email             String    @unique(map: "users_email_unique")
   email_verified_at DateTime?
   password          String
   is_admin          Boolean   @default(false)
   avatar_path       String?
   remember_token    String?
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
-  movies            Movie[]
+  created_at        DateTime?
+  updated_at        DateTime?
+  movies            movies[]
 }
 
-model Movie {
-  id           Int       @id @default(autoincrement())
-  title        String
-  slug         String    @unique
-  description  String?
-  release_date DateTime?
-  director     String?
-  genre        Genre?
-  rating       Float?
-  poster_path  String?
-  imdb_id      String?
-  added_by     User      @relation(fields: [added_by_id], references: [id])
-  added_by_id  Int
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  platforms    MoviePlatform[]
+model movies {
+  id             Int              @id @default(autoincrement())
+  title          String
+  slug           String           @unique(map: "movies_slug_unique")
+  description    String?
+  release_date   DateTime?
+  director       String?
+  genre          Genre?
+  rating         Float?
+  poster_path    String?
+  imdb_id        String?
+  added_by       Int
+  created_at     DateTime?
+  updated_at     DateTime?
+  movie_platform movie_platform[]
+  users          users            @relation(fields: [added_by], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-model Platform {
-  id         Int      @id @default(autoincrement())
-  name       String
-  slug       String   @unique
-  url        String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  movies     MoviePlatform[]
+model platforms {
+  id             Int              @id @default(autoincrement())
+  name           String
+  slug           String           @unique(map: "platforms_slug_unique")
+  url            String?
+  created_at     DateTime?
+  updated_at     DateTime?
+  movie_platform movie_platform[]
 }
 
-model MoviePlatform {
-  id          Int      @id @default(autoincrement())
-  movie       Movie    @relation(fields: [movie_id], references: [id])
+model movie_platform {
+  id          Int       @id @default(autoincrement())
   movie_id    Int
-  platform    Platform @relation(fields: [platform_id], references: [id])
   platform_id Int
   external_id String?
   url         String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at  DateTime?
+  updated_at  DateTime?
+  platforms   platforms @relation(fields: [platform_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  movies      movies    @relation(fields: [movie_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([movie_id, platform_id])
+  @@unique([movie_id, platform_id], map: "movie_platform_movie_id_platform_id_unique")
+}
+
+// Laravel Generated Models Below
+
+model cache {
+  key        String @id
+  value      String
+  expiration Int
+}
+
+model cache_locks {
+  key        String @id
+  owner      String
+  expiration Int
+}
+
+model failed_jobs {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique(map: "failed_jobs_uuid_unique")
+  connection String
+  queue      String
+  payload    String
+  exception  String
+  failed_at  DateTime @default(now())
+}
+
+model job_batches {
+  id             String  @id
+  name           String
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String
+  options        String?
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model jobs {
+  id           Int    @id @default(autoincrement())
+  queue        String
+  payload      String
+  attempts     Int
+  reserved_at  Int?
+  available_at Int
+  created_at   Int
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  migration String
+  batch     Int
+}
+
+model password_reset_tokens {
+  email      String    @id
+  token      String
+  created_at DateTime?
+}
+
+model sessions {
+  id            String  @id
+  user_id       Int?
+  ip_address    String?
+  user_agent    String?
+  payload       String
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
 }
 
 enum Genre {
