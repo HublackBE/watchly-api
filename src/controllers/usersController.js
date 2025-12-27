@@ -54,3 +54,5 @@ export const remove = async (req, res, next) => {
     next(err);
   }
 };
+
+export default { list, get, create, update, remove };

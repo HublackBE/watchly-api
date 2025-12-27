@@ -89,3 +89,5 @@ export const removeMovie = async (req, res, next) => {
     next(err);
   }
 };
+
+export default { list, get, create, update, remove, movies, addMovie, removeMovie };
