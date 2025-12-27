@@ -1,7 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from '../docs/swagger.json';
+import swaggerDocument from '../docs/swagger.json' with { type: 'json' };
 import v1Routes from './routes/v1/index.js';
 
 const app = express();
@@ -13,7 +13,11 @@ app.use(express.json());
 app.use('/api/v1', v1Routes);
 
 // serve API docs at /api-docs
-app.use(['/', '/api', '/api-docs'], swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(['/api-docs'], swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// simple root status
-app.get('/', (_req, res) => res.json({ ok: true, version: 'v1' }));
+app.get('/', (_req, res) => res.redirect('/api-docs'));
+
+// Basic health check route
+app.get('/api', (_req, res) => res.json({ ok: true, version: 'v1' }));
+
+export default app;
