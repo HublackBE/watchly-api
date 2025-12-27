@@ -1,4 +1,4 @@
-import * as Movie from '../models/movie.js';
+import * as Movie from "../models/movie.js";
 
 export const list = async (req, res, next) => {
   try {
@@ -11,8 +11,9 @@ export const list = async (req, res, next) => {
 
 export const get = async (req, res, next) => {
   try {
-    const movie = await Movie.getById(req.params.id);
-    if (!movie) return res.status(404).json({ error: 'Movie not found' });
+    const id = Number(req.params.id);
+    const movie = await Movie.getById(id);
+    if (!movie) return res.status(404).json({ error: "Movie not found" });
     res.json(movie);
   } catch (err) {
     next(err);
@@ -21,9 +22,10 @@ export const get = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    const { title, year, user_id } = req.body;
-    if (!title) return res.status(400).json({ error: 'title is required' });
-    const created = await Movie.create({ title, year, user_id });
+    const data = req.body;
+    if (!data.title)
+      return res.status(400).json({ error: "title is required" });
+    const created = await Movie.create(data);
     res.status(201).json(created);
   } catch (err) {
     next(err);
@@ -32,9 +34,10 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   try {
-    const exists = await Movie.getById(req.params.id);
-    if (!exists) return res.status(404).json({ error: 'Movie not found' });
-    const updated = await Movie.update(req.params.id, req.body);
+    const id = Number(req.params.id);
+    const exists = await Movie.getById(id);
+    if (!exists) return res.status(404).json({ error: "Movie not found" });
+    const updated = await Movie.update(id, req.body);
     res.json(updated);
   } catch (err) {
     next(err);
@@ -43,13 +46,12 @@ export const update = async (req, res, next) => {
 
 export const remove = async (req, res, next) => {
   try {
-    const exists = await Movie.getById(req.params.id);
-    if (!exists) return res.status(404).json({ error: 'Movie not found' });
-    await Movie.remove(req.params.id);
+    const id = Number(req.params.id);
+    const exists = await Movie.getById(id);
+    if (!exists) return res.status(404).json({ error: "Movie not found" });
+    await Movie.remove(id);
     res.status(204).send();
   } catch (err) {
     next(err);
   }
 };
-
-export default { list, get, create, update, remove };
