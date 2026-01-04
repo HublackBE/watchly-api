@@ -56,8 +56,6 @@ export const remove = async (req, res, next) => {
   }
 };
 
-export default { list, get, create, update, remove, favouriteMovies, addFavouriteMovie, removeFavouriteMovie };
-
 // relation endpoints
 export const favouriteMovies = async (req, res, next) => {
   try {
@@ -92,3 +90,5 @@ export const removeFavouriteMovie = async (req, res, next) => {
     next(err);
   }
 };
+
+export default { list, get, create, update, remove, favouriteMovies, addFavouriteMovie, removeFavouriteMovie };

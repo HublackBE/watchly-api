@@ -52,8 +52,6 @@ export const remove = async (req, res, next) => {
   }
 };
 
-export default { list, get, create, update, remove, platforms, addPlatform, removePlatform };
-
 // relation endpoints
 export const platforms = async (req, res, next) => {
   try {
@@ -88,3 +86,5 @@ export const removePlatform = async (req, res, next) => {
     next(err);
   }
 };
+
+export default { list, get, create, update, remove, platforms, addPlatform, removePlatform };
