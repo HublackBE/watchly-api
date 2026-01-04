@@ -1,0 +1,54 @@
+import * as Faqs from '../models/faqs.js';
+
+export const list = async (req, res, next) => {
+  try {
+    const items = await Faqs.all();
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const get = async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const item = await Faqs.getById(id);
+    if (!item) return res.status(404).json({ error: 'Not found' });
+    res.json(item);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const create = async (req, res, next) => {
+  try {
+    const created = await Faqs.create(req.body);
+    res.status(201).json(created);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const update = async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const exists = await Faqs.getById(id);
+    if (!exists) return res.status(404).json({ error: 'Not found' });
+    const updated = await Faqs.update(id, req.body);
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const remove = async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    await Faqs.remove(id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { list, get, create, update, remove };
