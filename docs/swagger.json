@@ -321,6 +321,74 @@
         }
       }
     },
+    "/users/{id}/favourite-movies": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "summary": "List favourite movies for a user",
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favourites"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add favourite movie for a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavouriteCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favourite"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove favourite movie for a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "movie_id": { "type": "integer" }
+                },
+                "required": ["movie_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Removed" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
     "/platforms/{id}/movies": {
       "parameters": [
         {
@@ -366,15 +434,8 @@
             }
           }
         }
-      }
-    },
-    "/platforms/{id}/movies/remove": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/idParam"
-        }
-      ],
-      "post": {
+      },
+      "delete": {
         "summary": "Remove movie from platform",
         "requestBody": {
           "required": true,
@@ -383,25 +444,74 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "movie_id": {
-                    "type": "integer"
-                  }
+                  "movie_id": { "type": "integer" }
                 },
-                "required": [
-                  "movie_id"
-                ]
+                "required": ["movie_id"]
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "Removed"
-          },
-          "404": {
-            "description": "Not found"
-          }
+          "204": { "description": "Removed" },
+          "404": { "description": "Not found" }
         }
+      }
+    },
+    "/movies/{id}/platforms": {
+      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
+      "get": {
+        "summary": "List platforms for a movie",
+        "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoviePlatforms" } } } } }
+      },
+      "post": {
+        "summary": "Add platform to a movie",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoviePlatformCreate"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoviePlatform" } } } } }
+      },
+      "delete": {
+        "summary": "Remove platform from a movie",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "platform_id": { "type": "integer" } }, "required": ["platform_id"] } } }
+        },
+        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/movies/{id}/favourites": {
+      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
+      "get": { "summary": "List favourites for a movie", "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favourites" } } } } } },
+      "post": {
+        "summary": "Add favourite for a movie",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FavouriteCreate" } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favourite" } } } } }
+      },
+      "delete": {
+        "summary": "Remove favourite for a movie",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "user_id": { "type": "integer" } }, "required": ["user_id"] } } } },
+        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/tv-shows/{id}/platforms": {
+      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
+      "get": { "summary": "List platforms for a TV show", "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShows" } } } } } },
+      "post": {
+        "summary": "Add platform to a TV show",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShowCreate" } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShow" } } } } }
+      },
+      "delete": {
+        "summary": "Remove platform from a TV show",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "platform_id": { "type": "integer" } }, "required": ["platform_id"] } } } },
+        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
       }
     }
   },
