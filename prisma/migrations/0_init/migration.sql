@@ -304,31 +304,6 @@ CREATE UNIQUE INDEX "movie_platform_movie_id_platform_id_unique" ON "movie_platf
 
 
 
--- CreateIndex
-
-CREATE UNIQUE INDEX "failed_jobs_uuid_unique" ON "failed_jobs"("uuid");
-
-
-
--- CreateIndex
-
-CREATE INDEX "jobs_queue_index" ON "jobs"("queue");
-
-
-
--- CreateIndex
-
-CREATE INDEX "sessions_last_activity_index" ON "sessions"("last_activity");
-
-
-
--- CreateIndex
-
-CREATE INDEX "sessions_user_id_index" ON "sessions"("user_id");
-
-
-
--- CreateIndex
 
 CREATE INDEX "comments_commentable_type_commentable_id_index" ON "comments"("commentable_type", "commentable_id");
 
