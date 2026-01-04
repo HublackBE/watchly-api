@@ -16,10 +16,13 @@ export const register = async (req, res, next) => {
     if (!name || !email || !password) return res.status(400).json({ error: 'name, email and password required' });
     const existing = await Users.findByEmail(email);
     if (existing) return res.status(400).json({ error: 'email already in use' });
+    const existingName = await Users.findByName(name);
+    if (existingName) return res.status(400).json({ error: 'name already in use' });
     const pwdHash = await hashPassword(password);
-    const created = await Users.create({ name, email, password: pwdHash });
-    // strip password
-    delete created.password;
+    const created = await Users.create(
+      { name, email, password: pwdHash },
+      { select: { id: true, name: true, email: true, is_admin: true, avatar_path: true, created_at: true } }
+    );
     res.status(201).json(created);
   } catch (err) {
     next(err);
