@@ -168,14 +168,14 @@ model tv_shows {
 }
 
 enum Genre {
-  ACTION
-  COMEDY
-  DRAMA
-  HORROR
-  ROMANCE
-  SCI_FI
-  THRILLER
-  FANTASY
-  DOCUMENTARY
-  ANIMATION
+  Action
+  Comedy
+  Drama
+  Horror
+  Romance
+  Sci_Fi
+  Thriller
+  Fantasy
+  Documentary
+  Animation
 }
