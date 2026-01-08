@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../docs/swagger.json' with { type: 'json' };
 import cookieParser from 'cookie-parser';
-import v1Routes from './routes/v1/index.js';
+import v1Routes from './routes/v1/_index.js';
 
 const app = express();
 
