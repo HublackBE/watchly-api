@@ -1,8 +1,10 @@
 import * as Faqs from '../models/faqs.js';
+import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const items = await Faqs.all();
+    const { skip, take } = parsePagination(req);
+    const items = await Faqs.all({ skip, take });
     res.json(items);
   } catch (err) {
     next(err);

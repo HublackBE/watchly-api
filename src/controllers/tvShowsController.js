@@ -1,9 +1,11 @@
 import * as TvShows from '../models/tv_shows.js';
 import * as PTV from '../models/platform_tv_show.js';
+import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const items = await TvShows.all();
+    const { skip, take } = parsePagination(req);
+    const items = await TvShows.all({ skip, take });
     res.json(items);
   } catch (err) {
     next(err);

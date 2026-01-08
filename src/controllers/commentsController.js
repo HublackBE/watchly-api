@@ -1,8 +1,10 @@
 import * as Comments from '../models/comments.js';
+import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const items = await Comments.all();
+    const { skip, take } = parsePagination(req);
+    const items = await Comments.all({ skip, take });
     res.json(items);
   } catch (err) {
     next(err);

@@ -1,10 +1,12 @@
 import * as Movie from "../models/movie.js";
 import * as Platform from '../models/platform.js';
 import * as Favs from '../models/favourite_movies.js';
+import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const movies = await Movie.all();
+    const { skip, take } = parsePagination(req);
+    const movies = await Movie.all({ skip, take });
     res.json(movies);
   } catch (err) {
     next(err);

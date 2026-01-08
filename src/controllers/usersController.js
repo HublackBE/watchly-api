@@ -1,9 +1,11 @@
 import * as User from '../models/user.js';
 import * as Favs from '../models/favourite_movies.js';
+import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const users = await User.all();
+    const { skip, take } = parsePagination(req);
+    const users = await User.all({ skip, take });
     res.json(users);
   } catch (err) {
     next(err);

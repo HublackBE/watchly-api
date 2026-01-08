@@ -1,8 +1,10 @@
 import * as Platform from '../models/platform.js';
+import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const platforms = await Platform.all();
+    const { skip, take } = parsePagination(req);
+    const platforms = await Platform.all({ skip, take });
     res.json(platforms);
   } catch (err) {
     next(err);
