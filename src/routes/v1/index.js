@@ -6,6 +6,7 @@ import tvShows from './tvShows.js';
 import comments from './comments.js';
 import faqs from './faqs.js';
 import auth from './auth.js';
+import catalog from './catalog.js';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.use('/tv-shows', tvShows);
 router.use('/comments', comments);
 router.use('/faqs', faqs);
 router.use('/auth', auth);
+router.use('/catalog', catalog);
 // pivot and internal Laravel tables are intentionally not exposed as top-level routes
 
 router.get('/', (_req, res) => res.json({ ok: true, version: 'v1' }));

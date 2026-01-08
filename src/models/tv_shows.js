@@ -2,6 +2,8 @@ import prisma from '../lib/prisma.js';
 
 export const all = async (opts = {}) => await prisma.tv_shows.findMany({ orderBy: { created_at: 'desc' }, ...opts });
 
+export const count = async (opts = {}) => await prisma.tv_shows.count({ ...opts });
+
 export const getById = async (id, opts = {}) => await prisma.tv_shows.findUnique({ where: { id }, ...opts });
 
 export const getBySlug = async (slug, opts = {}) => await prisma.tv_shows.findUnique({ where: { slug }, ...opts });
