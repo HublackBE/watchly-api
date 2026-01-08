@@ -5,9 +5,12 @@ import { parsePagination } from '../lib/pagination.js';
 
 export const list = async (req, res, next) => {
   try {
-    const { skip, take } = parsePagination(req);
-    const movies = await Movie.all({ skip, take });
-    res.json(movies);
+    const { page, perPage, skip, take } = parsePagination(req);
+    const total = await Movie.count();
+    const items = await Movie.all({ skip, take });
+    const totalPages = Math.max(1, Math.ceil((total || 0) / perPage));
+    const hasMore = skip + items.length < (total || 0);
+    res.json({ page, perPage, total, totalPages, hasMore, items });
   } catch (err) {
     next(err);
   }
