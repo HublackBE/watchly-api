@@ -3,6 +3,9 @@ import prisma from '../lib/prisma.js';
 export const all = async (opts = {}) =>
     await prisma.movies.findMany({ orderBy: { created_at: 'desc' }, ...opts });
 
+export const findMany = async (filter = {}, opts = {}) =>
+    await prisma.movies.findMany({ where: { ...filter }, ...opts });
+
 export const count = async (opts = {}) =>
     await prisma.movies.count({ ...opts });
 
