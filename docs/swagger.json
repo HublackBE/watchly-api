@@ -11,9 +11,73 @@
       "description": "API v1 base path"
     }
   ],
+  "tags": [
+    { "name": "Auth", "description": "Authentication endpoints (login, register, refresh, logout)" },
+    { "name": "Users", "description": "User management endpoints" },
+    { "name": "Movies", "description": "Movie management and related endpoints" },
+    { "name": "Platforms", "description": "Platform management and platform-movie relations" },
+    { "name": "Favourites", "description": "User favourite movies" },
+    { "name": "TV Shows", "description": "TV show related endpoints" }
+  ],
   "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+          "400": { "description": "Bad request" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login user (returns access token; sets refresh token cookie)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthLogin" } } } },
+        "responses": {
+          "200": {
+            "description": "Authenticated — access token returned; refresh token set as HttpOnly cookie",
+            "headers": { "Set-Cookie": { "description": "Refresh token (HttpOnly) set by server", "schema": { "type": "string" } } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthTokens" } } }
+          },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refresh access token using refresh token cookie",
+        "responses": {
+          "200": {
+            "description": "New access token returned; refresh token rotated and set as HttpOnly cookie",
+            "headers": { "Set-Cookie": { "description": "Rotated refresh token (HttpOnly)", "schema": { "type": "string" } } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthTokens" } } }
+          },
+          "401": { "description": "Invalid or missing refresh token" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout and revoke refresh token",
+        "responses": { "204": { "description": "Logged out; refresh cookie cleared" } }
+      }
+    },
     "/users": {
       "get": {
+        "tags": ["Users"],
         "summary": "List users",
         "responses": {
           "200": {
@@ -29,6 +93,7 @@
         }
       },
       "post": {
+        "tags": ["Users"],
         "summary": "Create a user",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -62,6 +127,7 @@
         }
       ],
       "get": {
+        "tags": ["Users"],
         "summary": "Get a user",
         "responses": {
           "200": {
@@ -80,6 +146,7 @@
         }
       },
       "put": {
+        "tags": ["Users"],
         "summary": "Update a user",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -106,6 +173,7 @@
         }
       },
       "delete": {
+        "tags": ["Users"],
         "summary": "Delete a user",
         "security": [ { "bearerAuth": [] } ],
         "responses": {
@@ -118,8 +186,80 @@
         }
       }
     },
+    "/users/{id}/favourite-movies": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "tags": ["Favourites"],
+        "summary": "List favourite movies for a user",
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favourites"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Favourites"],
+        "summary": "Add favourite movie for a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavouriteCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favourite"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Favourites"],
+        "summary": "Remove favourite movie for a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "movie_id": { "type": "integer" }
+                },
+                "required": ["movie_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Removed" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
     "/movies": {
       "get": {
+        "tags": ["Movies"],
         "summary": "List movies",
         "responses": {
           "200": {
@@ -135,6 +275,7 @@
         }
       },
       "post": {
+        "tags": ["Movies"],
         "summary": "Create a movie",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -168,6 +309,7 @@
         }
       ],
       "get": {
+        "tags": ["Movies"],
         "summary": "Get a movie",
         "responses": {
           "200": {
@@ -186,6 +328,7 @@
         }
       },
       "put": {
+        "tags": ["Movies"],
         "summary": "Update a movie",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -212,6 +355,7 @@
         }
       },
       "delete": {
+        "tags": ["Movies"],
         "summary": "Delete a movie",
         "security": [ { "bearerAuth": [] } ],
         "responses": {
@@ -224,8 +368,59 @@
         }
       }
     },
+    "/movies/{id}/platforms": {
+      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
+      "get": {
+        "tags": ["Movies"],
+        "summary": "List platforms for a movie",
+        "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoviePlatforms" } } } } }
+      },
+      "post": {
+        "tags": ["Movies"],
+        "summary": "Add platform to a movie",
+        "security": [ { "bearerAuth": [] } ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoviePlatformCreate"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoviePlatform" } } } } }
+      },
+      "delete": {
+        "tags": ["Movies"],
+        "summary": "Remove platform from a movie",
+        "security": [ { "bearerAuth": [] } ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "platform_id": { "type": "integer" } }, "required": ["platform_id"] } } }
+        },
+        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/movies/{id}/favourites": {
+      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
+      "get": { "tags": ["Movies"], "summary": "List favourites for a movie", "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favourites" } } } } } },
+      "post": {
+        "tags": ["Movies"],
+        "summary": "Add favourite for a movie",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FavouriteCreate" } } } },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favourite" } } } } }
+      },
+      "delete": {
+        "tags": ["Movies"],
+        "summary": "Remove favourite for a movie",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "user_id": { "type": "integer" } }, "required": ["user_id"] } } } },
+        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
+      }
+    },
     "/platforms": {
       "get": {
+        "tags": ["Platforms"],
         "summary": "List platforms",
         "responses": {
           "200": {
@@ -241,6 +436,7 @@
         }
       },
       "post": {
+        "tags": ["Platforms"],
         "summary": "Create a platform",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -274,6 +470,7 @@
         }
       ],
       "get": {
+        "tags": ["Platforms"],
         "summary": "Get platform",
         "responses": {
           "200": {
@@ -292,6 +489,7 @@
         }
       },
       "put": {
+        "tags": ["Platforms"],
         "summary": "Update platform",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -318,6 +516,7 @@
         }
       },
       "delete": {
+        "tags": ["Platforms"],
         "summary": "Delete platform",
         "security": [ { "bearerAuth": [] } ],
         "responses": {
@@ -330,74 +529,6 @@
         }
       }
     },
-    "/users/{id}/favourite-movies": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/idParam"
-        }
-      ],
-      "get": {
-        "summary": "List favourite movies for a user",
-        "responses": {
-          "200": {
-            "description": "List",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Favourites"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Add favourite movie for a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FavouriteCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Favourite"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Remove favourite movie for a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "movie_id": { "type": "integer" }
-                },
-                "required": ["movie_id"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": { "description": "Removed" },
-          "404": { "description": "Not found" }
-        }
-      }
-    },
     "/platforms/{id}/movies": {
       "parameters": [
         {
@@ -405,6 +536,7 @@
         }
       ],
       "get": {
+        "tags": ["Platforms"],
         "summary": "List movies for a platform",
         "responses": {
           "200": {
@@ -420,6 +552,7 @@
         }
       },
       "post": {
+        "tags": ["Platforms"],
         "summary": "Add movie to platform",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -446,6 +579,7 @@
         }
       },
       "delete": {
+        "tags": ["Platforms"],
         "summary": "Remove movie from platform",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
@@ -468,116 +602,22 @@
         }
       }
     },
-    "/movies/{id}/platforms": {
-      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
-      "get": {
-        "summary": "List platforms for a movie",
-        "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoviePlatforms" } } } } }
-      },
-      "post": {
-        "summary": "Add platform to a movie",
-        "security": [ { "bearerAuth": [] } ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MoviePlatformCreate"
-              }
-            }
-          }
-        },
-        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoviePlatform" } } } } }
-      },
-      "delete": {
-        "summary": "Remove platform from a movie",
-        "security": [ { "bearerAuth": [] } ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "type": "object", "properties": { "platform_id": { "type": "integer" } }, "required": ["platform_id"] } } }
-        },
-        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
-      }
-    },
-    "/movies/{id}/favourites": {
-      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
-      "get": { "summary": "List favourites for a movie", "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favourites" } } } } } },
-      "post": {
-        "summary": "Add favourite for a movie",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FavouriteCreate" } } } },
-        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favourite" } } } } }
-      },
-      "delete": {
-        "summary": "Remove favourite for a movie",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "user_id": { "type": "integer" } }, "required": ["user_id"] } } } },
-        "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
-      }
-    },
     "/tv-shows/{id}/platforms": {
       "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
-      "get": { "summary": "List platforms for a TV show", "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShows" } } } } } },
+      "get": { "tags": ["TV Shows"], "summary": "List platforms for a TV show", "responses": { "200": { "description": "List", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShows" } } } } } },
       "post": {
+        "tags": ["TV Shows"],
         "summary": "Add platform to a TV show",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShowCreate" } } } },
         "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlatformTvShow" } } } } }
       },
       "delete": {
+        "tags": ["TV Shows"],
         "summary": "Remove platform from a TV show",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "platform_id": { "type": "integer" } }, "required": ["platform_id"] } } } },
         "responses": { "204": { "description": "Removed" }, "404": { "description": "Not found" } }
-      }
-    },
-    "/auth/register": {
-      "post": {
-        "summary": "Register a new user",
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserCreate" }
-            }
-          }
-        },
-        "responses": {
-          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
-          "400": { "description": "Bad request" }
-        }
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "summary": "Login user (returns access token; sets refresh token cookie)",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthLogin" } } } },
-        "responses": {
-          "200": {
-            "description": "Authenticated — access token returned; refresh token set as HttpOnly cookie",
-            "headers": { "Set-Cookie": { "description": "Refresh token (HttpOnly) set by server", "schema": { "type": "string" } } },
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthTokens" } } }
-          },
-          "401": { "description": "Invalid credentials" }
-        }
-      }
-    },
-    "/auth/refresh": {
-      "post": {
-        "summary": "Refresh access token using refresh token cookie",
-        "responses": {
-          "200": {
-            "description": "New access token returned; refresh token rotated and set as HttpOnly cookie",
-            "headers": { "Set-Cookie": { "description": "Rotated refresh token (HttpOnly)", "schema": { "type": "string" } } },
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthTokens" } } }
-          },
-          "401": { "description": "Invalid or missing refresh token" }
-        }
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "summary": "Logout and revoke refresh token",
-        "responses": { "204": { "description": "Logged out; refresh cookie cleared" } }
       }
     }
   },
