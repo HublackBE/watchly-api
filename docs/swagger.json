@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Watchly API",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Minimal OpenAPI spec for Watchly API v1 (users, movies, platforms)"
   },
   "servers": [
