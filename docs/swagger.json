@@ -75,6 +75,50 @@
         "responses": { "204": { "description": "Logged out; refresh cookie cleared" } }
       }
     },
+    "/comments": {
+      "get": {
+        "tags": ["Comments"],
+        "summary": "List comments",
+        "responses": {
+          "200": {
+            "description": "A list of comments",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Comments" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Comments"],
+        "summary": "Create a comment",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CommentCreate" } } }
+        },
+        "responses": { "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Comment" } } } } }
+      }
+    },
+    "/comments/{id}": {
+      "parameters": [ { "$ref": "#/components/parameters/idParam" } ],
+      "get": {
+        "tags": ["Comments"],
+        "summary": "Get a comment",
+        "responses": { "200": { "description": "Comment", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Comment" } } } }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "tags": ["Comments"],
+        "summary": "Update a comment",
+        "description": "Requires authentication. Only the comment author or an admin may update this comment.",
+        "security": [ { "bearerAuth": [] } ],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CommentUpdate" } } } },
+        "responses": { "200": { "description": "Updated comment", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Comment" } } } } }
+      },
+      "delete": {
+        "tags": ["Comments"],
+        "summary": "Delete a comment",
+        "description": "Requires authentication. Only the comment author or an admin may delete this comment.",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": { "204": { "description": "Deleted" }, "404": { "description": "Not found" } }
+      }
+    },
     "/users": {
       "get": {
         "tags": ["Users"],
@@ -148,6 +192,7 @@
       "put": {
         "tags": ["Users"],
         "summary": "Update a user",
+        "description": "Requires authentication. Only the user themself or an admin may perform this action.",
         "security": [ { "bearerAuth": [] } ],
         "requestBody": {
           "required": true,
@@ -175,6 +220,7 @@
       "delete": {
         "tags": ["Users"],
         "summary": "Delete a user",
+        "description": "Requires authentication. Only the user themself or an admin may perform this action.",
         "security": [ { "bearerAuth": [] } ],
         "responses": {
           "204": {
@@ -644,22 +690,17 @@
       "User": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "is_admin": {
-            "type": "boolean"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "email": { "type": "string" },
+          "email_verified_at": { "type": "string", "format": "date-time" },
+          "bio": { "type": "string" },
+          "is_admin": { "type": "boolean" },
+          "avatar_path": { "type": "string" },
+          "date_of_birth": { "type": "string", "format": "date" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "UserCreate": {
@@ -668,12 +709,12 @@
           "name": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "slug": { "type": "string" },
+          "bio": { "type": "string" },
+          "avatar_path": { "type": "string" },
+          "date_of_birth": { "type": "string", "format": "date" }
         },
         "required": [
           "name",
@@ -683,12 +724,13 @@
       "UserUpdate": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "slug": { "type": "string" },
+          "bio": { "type": "string" },
+          "avatar_path": { "type": "string" },
+          "date_of_birth": { "type": "string", "format": "date" }
         }
       },
       "Users": {
@@ -706,32 +748,17 @@
           "title": {
             "type": "string"
           },
-          "slug": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "release_date": {
-            "type": "string",
-            "format": "date"
-          },
-          "director": {
-            "type": "string"
-          },
-          "genre": {
-            "type": "string"
-          },
-          "rating": {
-            "type": "number"
-          },
-          "added_by": {
-            "type": "integer"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" },
+          "added_by": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "MovieCreate": {
@@ -743,17 +770,19 @@
           "slug": {
             "type": "string"
           },
-          "description": {
-            "type": "string"
-          },
-          "added_by": {
-            "type": "integer"
-          }
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" },
+          "added_by": { "type": "integer" }
         },
         "required": [
-          "title",
-          "slug"
-        ]
+          "title"
+        ],
+        "description": "Provide `title`. `slug` is optional — if omitted it will be generated from the title. `added_by` is set automatically from the authenticated user when available."
       },
       "MovieUpdate": {
         "type": "object",
@@ -761,9 +790,14 @@
           "title": {
             "type": "string"
           },
-          "description": {
-            "type": "string"
-          }
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" }
         }
       },
       "Movies": {
@@ -784,13 +818,11 @@
           "slug": {
             "type": "string"
           },
-          "url": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
+          "url": { "type": "string" },
+          "url_template": { "type": "string" },
+          "added_by": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "PlatformCreate": {
@@ -802,14 +834,14 @@
           "slug": {
             "type": "string"
           },
-          "url": {
-            "type": "string"
-          }
+          "url": { "type": "string" },
+          "url_template": { "type": "string" },
+          "added_by": { "type": "integer" }
         },
         "required": [
-          "name",
-          "slug"
-        ]
+          "name"
+        ],
+        "description": "Provide `name`. `slug` is optional — if omitted it will be generated from the name."
       },
       "PlatformUpdate": {
         "type": "object",
@@ -817,9 +849,8 @@
           "name": {
             "type": "string"
           },
-          "url": {
-            "type": "string"
-          }
+          "url": { "type": "string" },
+          "url_template": { "type": "string" }
         }
       },
       "Platforms": {
@@ -873,6 +904,86 @@
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/MoviePlatform"
+        }
+      }
+      ,
+      "TvShow": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" },
+          "added_by": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "TvShowCreate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" },
+          "added_by": { "type": "integer" }
+        },
+        "required": ["title"],
+        "description": "Provide `title`. `slug` is optional — if omitted it will be generated from the title. `added_by` is set automatically from the authenticated user when available."
+      },
+      "TvShowUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" }
+        }
+      },
+      "Comments": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Comment" }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "content": { "type": "string" },
+          "user_id": { "type": "integer" },
+          "commentable_type": { "type": "string" },
+          "commentable_id": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CommentCreate": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string" },
+          "commentable_type": { "type": "string" },
+          "commentable_id": { "type": "integer" }
+        },
+        "required": ["content", "commentable_type", "commentable_id"]
+      },
+      "CommentUpdate": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string" }
         }
       }
       ,
