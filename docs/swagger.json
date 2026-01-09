@@ -14,10 +14,12 @@
   "tags": [
     { "name": "Auth", "description": "Authentication endpoints (login, register, refresh, logout)" },
     { "name": "Users", "description": "User management endpoints" },
+    { "name": "Catalog", "description": "Catalog listing of movies and TV shows" },
     { "name": "Movies", "description": "Movie management and related endpoints" },
+    { "name": "TV Shows", "description": "TV show related endpoints" },
     { "name": "Platforms", "description": "Platform management and platform-movie relations" },
     { "name": "Favourites", "description": "User favourite movies" },
-    { "name": "TV Shows", "description": "TV show related endpoints" }
+    { "name": "Comments", "description": "User comments on movies and TV shows" }
   ],
   "paths": {
     "/auth/register": {
@@ -79,6 +81,11 @@
       "get": {
         "tags": ["Comments"],
         "summary": "List comments",
+        "parameters": [
+          { "$ref": "#/components/parameters/pageParam" },
+          { "$ref": "#/components/parameters/perPageParam" },
+          { "$ref": "#/components/parameters/searchParam" }
+        ],
         "responses": {
           "200": {
             "description": "A list of comments",
@@ -123,6 +130,11 @@
       "get": {
         "tags": ["Users"],
         "summary": "List users",
+        "parameters": [
+          { "$ref": "#/components/parameters/pageParam" },
+          { "$ref": "#/components/parameters/perPageParam" },
+          { "$ref": "#/components/parameters/searchParam" }
+        ],
         "responses": {
           "200": {
             "description": "A list of users",
@@ -303,10 +315,32 @@
         }
       }
     },
+    "/catalog": {
+      "get": {
+        "tags": ["Catalog"],
+        "summary": "Catalog listing (movies & TV shows)",
+        "parameters": [
+          { "$ref": "#/components/parameters/pageParam" },
+          { "$ref": "#/components/parameters/perPageParam" },
+          { "$ref": "#/components/parameters/searchParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catalog results",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Catalog" } } }
+          }
+        }
+      }
+    },
     "/movies": {
       "get": {
         "tags": ["Movies"],
         "summary": "List movies",
+        "parameters": [
+          { "$ref": "#/components/parameters/pageParam" },
+          { "$ref": "#/components/parameters/perPageParam" },
+          { "$ref": "#/components/parameters/searchParam" }
+        ],
         "responses": {
           "200": {
             "description": "A list of movies",
@@ -468,6 +502,11 @@
       "get": {
         "tags": ["Platforms"],
         "summary": "List platforms",
+        "parameters": [
+          { "$ref": "#/components/parameters/pageParam" },
+          { "$ref": "#/components/parameters/perPageParam" },
+          { "$ref": "#/components/parameters/searchParam" }
+        ],
         "responses": {
           "200": {
             "description": "A list of platforms",
@@ -681,9 +720,28 @@
         "name": "id",
         "in": "path",
         "required": true,
-        "schema": {
-          "type": "integer"
-        }
+        "schema": { "type": "integer" }
+      },
+      "pageParam": {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer", "default": 1 },
+        "description": "Page number for pagination (default: 1)"
+      },
+      "perPageParam": {
+        "name": "perPage",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer", "default": 10 },
+        "description": "Items per page for pagination (default: 10)"
+      },
+      "searchParam": {
+        "name": "search",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "Optional search term to filter results by title/description/director"
       }
     },
     "schemas": {
@@ -737,6 +795,28 @@
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/User"
+        }
+      },
+      "Catalog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "director": { "type": "string" },
+          "genre": { "type": "string" },
+          "rating": { "type": "number" },
+          "poster_path": { "type": "string" },
+          "imdb_id": { "type": "string" },
+          "added_by": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "Movie": {
@@ -905,8 +985,7 @@
         "items": {
           "$ref": "#/components/schemas/MoviePlatform"
         }
-      }
-      ,
+      },
       "TvShow": {
         "type": "object",
         "properties": {
