@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import prisma from '../src/lib/prisma.js';
 import { createUser } from './factories/userFactory.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function main() {
   const email = process.env.SEED_ADMIN_EMAIL || 'admin@example.com';
