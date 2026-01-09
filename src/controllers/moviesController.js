@@ -20,11 +20,13 @@ export const list = async (req, res, next) => {
       console.log("Searching movies for:", searchTerm);
       const results = await Movie.findMany(
         {
-          OR: [
-            { title: { contains: searchTerm } },
-            { description: { contains: searchTerm } },
-            { director: { contains: searchTerm } },
-          ],
+          where: {
+            OR: [
+              { title: { contains: searchTerm } },
+              { description: { contains: searchTerm } },
+              { director: { contains: searchTerm } },
+            ],
+          },
         },
         { skip, take }
       );
