@@ -4,7 +4,7 @@ export const all = async (opts = {}) =>
     await prisma.tv_shows.findMany({ orderBy: { created_at: 'desc' }, ...opts });
 
 export const findMany = async (filter = {}, opts = {}) =>
-    await prisma.tv_shows.findMany({ where: { ...filter }, ...opts });
+    await prisma.tv_shows.findMany({ ...filter , ...opts });
 
 export const count = async (opts = {}) =>
     await prisma.tv_shows.count({ ...opts });

@@ -17,16 +17,17 @@ export const list = async (req, res, next) => {
     const { page, perPage, skip, take } = parsePagination(req);
     if (req.query.search && req.query.search.trim().length > 0) {
       const searchTerm = req.query.search.trim();
-      const results = await Movie.findMany({
-        OR: [
-          { title: { contains: searchTerm, mode: 'insensitive' } },
-          { description: { contains: searchTerm, mode: 'insensitive' } },
-          { director: { contains: searchTerm, mode: 'insensitive' } },
-          { genre: { contains: searchTerm, mode: 'insensitive' } },
-        ],
-        skip,
-        take,
-      });
+      console.log("Searching movies for:", searchTerm);
+      const results = await Movie.findMany(
+        {
+          OR: [
+            { title: { contains: searchTerm } },
+            { description: { contains: searchTerm } },
+            { director: { contains: searchTerm } },
+          ],
+        },
+        { skip, take }
+      );
       return res.json({ page: page, perPage: perPage, total: results.length, totalPages: Math.max(1, Math.ceil(results.length / perPage)), hasMore: skip + results.length < results.length, items: results });
     }
     const total = await Movie.count();

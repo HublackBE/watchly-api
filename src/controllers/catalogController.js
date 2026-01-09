@@ -17,10 +17,9 @@ export const list = async (req, res, next) => {
       const searchTerm = req.query.search.trim();
       const where = {
         OR: [
-          { title: { contains: searchTerm, mode: 'insensitive' } },
-          { description: { contains: searchTerm, mode: 'insensitive' } },
-          { director: { contains: searchTerm, mode: 'insensitive' } },
-          { genre: { contains: searchTerm, mode: 'insensitive' } },
+          { title: { contains: searchTerm } },
+          { description: { contains: searchTerm } },
+          { director: { contains: searchTerm } },
         ],
       };
 
