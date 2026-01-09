@@ -36,6 +36,9 @@ export const update = async (req, res, next) => {
     const id = Number(req.params.id);
     const exists = await Comments.getById(id);
     if (!exists) return res.status(404).json({ error: 'Not found' });
+    // require authentication + authorization: only owner or admin
+    if (!req.user) return res.status(401).json({ error: 'authentication required' });
+    if (!req.user.is_admin && req.user.id !== exists.user_id) return res.status(403).json({ error: 'forbidden' });
     const updated = await Comments.update(id, req.body);
     res.json(updated);
   } catch (err) {
@@ -46,6 +49,10 @@ export const update = async (req, res, next) => {
 export const remove = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
+    const exists = await Comments.getById(id);
+    if (!exists) return res.status(404).json({ error: 'Not found' });
+    if (!req.user) return res.status(401).json({ error: 'authentication required' });
+    if (!req.user.is_admin && req.user.id !== exists.user_id) return res.status(403).json({ error: 'forbidden' });
     await Comments.remove(id);
     res.status(204).send();
   } catch (err) {

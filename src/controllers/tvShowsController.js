@@ -2,6 +2,15 @@ import * as TvShows from '../models/tv_shows.js';
 import * as PTV from '../models/platform_tv_show.js';
 import { parsePagination } from '../lib/pagination.js';
 
+// simple slug generator
+const generateSlug = (str) =>
+  String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-');
+
 export const list = async (req, res, next) => {
   try {
     const { page, perPage, skip, take } = parsePagination(req);
@@ -42,7 +51,12 @@ export const get = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    const created = await TvShows.create(req.body);
+    const data = req.body || {};
+    if (req.user && req.user.id) data.added_by = req.user.id;
+    if (!data.slug || (typeof data.slug === 'string' && data.slug.trim() === '')) {
+      data.slug = generateSlug(data.title || data.name || '');
+    }
+    const created = await TvShows.create(data);
     res.status(201).json(created);
   } catch (err) {
     next(err);

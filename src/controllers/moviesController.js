@@ -3,6 +3,15 @@ import * as Platform from '../models/platform.js';
 import * as Favs from '../models/favourite_movies.js';
 import { parsePagination } from '../lib/pagination.js';
 
+// simple slug generator
+const generateSlug = (str) =>
+  String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-');
+
 export const list = async (req, res, next) => {
   try {
     const { page, perPage, skip, take } = parsePagination(req);
@@ -46,6 +55,12 @@ export const create = async (req, res, next) => {
     const data = req.body;
     if (!data.title)
       return res.status(400).json({ error: "title is required" });
+    // set added_by from authenticated user when available
+    if (req.user && req.user.id) data.added_by = req.user.id;
+    // allow passing a slug, otherwise generate one from the title
+    if (!data.slug || (typeof data.slug === 'string' && data.slug.trim() === '')) {
+      data.slug = generateSlug(data.title);
+    }
     const created = await Movie.create(data);
     res.status(201).json(created);
   } catch (err) {

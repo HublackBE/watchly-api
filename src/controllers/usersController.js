@@ -2,6 +2,15 @@ import * as User from '../models/user.js';
 import * as Favs from '../models/favourite_movies.js';
 import { parsePagination } from '../lib/pagination.js';
 
+// simple slug generator
+const generateSlug = (str) =>
+  String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-');
+
 export const list = async (req, res, next) => {
   try {
     const { skip, take } = parsePagination(req);
@@ -25,8 +34,12 @@ export const get = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    const data = req.body;
+    const data = req.body || {};
     if (!data.name) return res.status(400).json({ error: 'name is required' });
+    // generate slug from name when not provided
+    if (!data.slug || (typeof data.slug === 'string' && data.slug.trim() === '')) {
+      data.slug = generateSlug(data.name);
+    }
     const created = await User.create(data);
     res.status(201).json(created);
   } catch (err) {
@@ -39,6 +52,8 @@ export const update = async (req, res, next) => {
     const id = Number(req.params.id);
     const exists = await User.getById(id);
     if (!exists) return res.status(404).json({ error: 'User not found' });
+    if (!req.user) return res.status(401).json({ error: 'authentication required' });
+    if (!req.user.is_admin && req.user.id !== id) return res.status(403).json({ error: 'forbidden' });
     const updated = await User.update(id, req.body);
     res.json(updated);
   } catch (err) {
@@ -51,6 +66,8 @@ export const remove = async (req, res, next) => {
     const id = Number(req.params.id);
     const exists = await User.getById(id);
     if (!exists) return res.status(404).json({ error: 'User not found' });
+    if (!req.user) return res.status(401).json({ error: 'authentication required' });
+    if (!req.user.is_admin && req.user.id !== id) return res.status(403).json({ error: 'forbidden' });
     await User.remove(id);
     res.status(204).send();
   } catch (err) {

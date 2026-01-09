@@ -1,6 +1,15 @@
 import * as Platform from '../models/platform.js';
 import { parsePagination } from '../lib/pagination.js';
 
+// simple slug generator
+const generateSlug = (str) =>
+  String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-');
+
 export const list = async (req, res, next) => {
   try {
     const { skip, take } = parsePagination(req);
@@ -24,8 +33,12 @@ export const get = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    const data = req.body;
-    if (!data.name || !data.slug) return res.status(400).json({ error: 'name and slug are required' });
+    const data = req.body || {};
+    if (!data.name) return res.status(400).json({ error: 'name is required' });
+    if (req.user && req.user.id) data.added_by = req.user.id;
+    if (!data.slug || (typeof data.slug === 'string' && data.slug.trim() === '')) {
+      data.slug = generateSlug(data.name);
+    }
     const created = await Platform.create(data);
     res.status(201).json(created);
   } catch (err) {
